@@ -1,0 +1,7 @@
+*
+!.gitignore
+!*/
+!*/Core/**
+!*/Drivers/**
+!*/Middlewares/**
+!*/*.ioc
