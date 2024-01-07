@@ -115,14 +115,18 @@ void MX_FREERTOS_Init(void) {
 void interrupt_entry(void *argument)
 {
   /* USER CODE BEGIN interrupt_entry */
+  uint16_t timer_count = 0;
   OLED_Init();
   OLED_Clear();
   OLED_ShowString(0,0,"Num:",16,0);
+  OLED_ShowString(0,2,"Cnt:",16,0);
   HAL_TIM_Base_Start_IT(&htim6);
   /* Infinite loop */
   for(;;)
   {
+    timer_count = __HAL_TIM_GET_COUNTER(&htim6);
     OLED_ShowNum(30,0,Num,5,16,0);
+    OLED_ShowNum(30,2,timer_count,5,16,0);
     osDelay(1);
   }
   /* USER CODE END interrupt_entry */
