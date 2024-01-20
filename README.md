@@ -22,3 +22,5 @@ TIM2定时器实现外部计数功能，PA0引脚每出现一次上升沿，TIM_
 使用TIM1 CH1(PA8)实现PWM呼吸灯功能，预分频720-1，重装载值100-1，通过不断设置set_compare来修改占空比，duty=compare/reload
 ## 9.Servo
 通过按键(PC5)控制PWM的占空比，以达到控制舵机旋转角度的效果。由于没有舵机，所以通过OLED显示舵机旋转角度，并控制LED步进亮度(PA8,TIM1_CH1)
+## 10.Input_Capture
+使用TIM3_CH1输入捕获功能，PA6引脚输入，TIM2_CH1作为PWM输出，PA0引脚输出，捕获上升沿，计算出PWM信号频率
