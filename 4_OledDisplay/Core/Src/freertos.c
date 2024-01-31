@@ -125,6 +125,7 @@ void OLED_Entry(void *argument)
     OLED_ShowCHinese(16,2,1,0);
     OLED_ShowCHinese(32,2,2,0);
     OLED_ShowCHinese(48,2,3,0);
+    OLED_ShowBinNum(0,4,16,6,16,0);
     osDelay(1);
   }
   /* USER CODE END OLED_Entry */

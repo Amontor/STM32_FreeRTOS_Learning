@@ -233,23 +233,43 @@ void OLED_ShowString(uint8_t x,uint8_t y,char*chr,uint8_t Char_Size, uint8_t Col
 void OLED_ShowNum(uint8_t x,uint8_t y,unsigned int num,uint8_t len,uint8_t size2, uint8_t Color_Turn)
 {
 	uint8_t t,temp;
-	uint8_t enshow=0;
 	for(t=0;t<len;t++)
 	{
 		temp=(num/oled_pow(10,len-t-1))%10;
-		if(enshow==0&&t<(len-1))
-		{
-			if(temp==0)
-			{
-				OLED_ShowChar(x+(size2/2)*t,y,' ',size2, Color_Turn);
-				continue;
-			}else enshow=1;
-
-		}
 	 	OLED_ShowChar(x+(size2/2)*t,y,temp+'0',size2, Color_Turn);
 	}
 }
 
+/**
+ * @function: void OLED_ShowSignedNum(uint8_t x,uint8_t y,signed int num,uint8_t len,uint8_t size2, Color_Turn)
+ * @description: 显示数字
+ * @param {uint8_t} x待显示的数字起始横坐标,x:0~126
+ * @param {uint8_t} y待显示的数字起始纵坐标, y:0~7，若选择字体大小为16，则两行数字之间需要间隔2，若选择字体大小为12，间隔1
+ * @param {signed int} Number:输入的数据
+ * @param {uint8_t } Length:输入的数据位数
+ * @param {uint8_t} size2:输入的数据大小，选择 16/12，16为8X16，12为6x8
+ * @param {uint8_t} Color_Turn是否反相显示(1反相、0不反相)
+ * @return {*}
+ */
+void OLED_ShowSignedNum(uint8_t x,uint8_t y, int32_t Number, uint8_t Length,uint8_t size2, uint8_t Color_Turn)
+{
+	uint8_t i;
+	uint32_t Number1;
+	if (Number >= 0)
+	{
+		OLED_ShowChar(x, y, '+',size2, Color_Turn);
+		Number1 = Number;
+	}
+	else
+	{
+		OLED_ShowChar(x, y, '-',size2, Color_Turn);
+		Number1 = -Number;
+	}
+	for (i = 0; i < Length; i++)							
+	{
+		OLED_ShowChar(x + (size2/2)*(i + 1), y, Number1 / oled_pow(10, Length - i - 1) % 10 + '0',size2, Color_Turn);
+	}
+}
 
 /**
  * @function: void OLED_Showdecimal(uint8_t x,uint8_t y,float num,uint8_t z_len,uint8_t f_len,uint8_t size2, uint8_t Color_Turn)
@@ -265,50 +285,83 @@ void OLED_ShowNum(uint8_t x,uint8_t y,unsigned int num,uint8_t len,uint8_t size2
  */
 void OLED_Showdecimal(uint8_t x,uint8_t y,float num,uint8_t z_len,uint8_t f_len,uint8_t size2, uint8_t Color_Turn)
 {
-	uint8_t t,temp,i=0;//i为负数标志位
-	uint8_t enshow;
+	uint8_t t,temp;
 	int z_temp,f_temp;
 	if(num<0)
 	{
-		z_len+=1;
-		i=1;
+        OLED_ShowChar(x, y, '-',size2, Color_Turn);
 		num=-num;
 	}
+    else 
+    {
+        OLED_ShowChar(x, y, '+',size2, Color_Turn);
+    }
 	z_temp=(int)num;
 	//整数部分
 	for(t=0;t<z_len;t++)
 	{
 		temp=(z_temp/oled_pow(10,z_len-t-1))%10;
-		if(enshow==0 && t<(z_len-1))
-		{
-			if(temp==0)
-			{
-				OLED_ShowChar(x+(size2/2)*t,y,' ',size2, Color_Turn);
-				continue;
-			}
-			else
-			enshow=1;
-		}
-		OLED_ShowChar(x+(size2/2)*t,y,temp+'0',size2, Color_Turn);
+		OLED_ShowChar(x+(size2/2)*(t+1),y,temp+'0',size2, Color_Turn);
 	}
 	//小数点
-	OLED_ShowChar(x+(size2/2)*(z_len),y,'.',size2, Color_Turn);
+	OLED_ShowChar(x+(size2/2)*(z_len+1),y,'.',size2, Color_Turn);
 
 	f_temp=(int)((num-z_temp)*(oled_pow(10,f_len)));
   //小数部分
 	for(t=0;t<f_len;t++)
 	{
 		temp=(f_temp/oled_pow(10,f_len-t-1))%10;
-		OLED_ShowChar(x+(size2/2)*(t+z_len)+5,y,temp+'0',size2, Color_Turn);
-	}
-	if(i==1)//如果为负，就将最前的一位赋值‘-’
-	{
-		OLED_ShowChar(x,y,'-',size2, Color_Turn);
-		i=0;
+		OLED_ShowChar(x+(size2/2)*(t+z_len+1)+5,y,temp+'0',size2, Color_Turn);
 	}
 }
 
+/**
+ * @brief OLED显示数字（十六进制，正数）
+ * @param {uint8_t} x待显示的数字起始横坐标,x:0~126
+ * @param {uint8_t} y待显示的数字起始纵坐标, y:0~7，若选择字体大小为16，则两行数字之间需要间隔2，若选择字体大小为12，间隔1
+ * @param {Number} 要显示的数字，范围：0~0xFFFFFFFF
+ * @param {uint8_t } Length:要显示数字的长度
+ * @param {uint8_t} size2:输入的数据大小，选择 16/12，16为8X16，12为6x8
+ * @param {uint8_t} Color_Turn是否反相显示(1反相、0不反相)
+ * @return {*}
+ */
+void OLED_ShowHexNum(uint8_t x, uint8_t y, uint32_t Number, uint8_t Length,uint8_t size2, uint8_t Color_Turn)
+{
+	uint8_t i, SingleNumber;
+    OLED_ShowString(x, y, "0x", size2, Color_Turn);
+	for (i = 0; i < Length; i++)							
+	{
+		SingleNumber = Number / oled_pow(16, Length - i - 1) % 16;
+		if (SingleNumber < 10)
+		{
+			OLED_ShowChar(x + (size2/2)*(i+2), y, SingleNumber + '0', size2, Color_Turn);
+		}
+		else
+		{
+			OLED_ShowChar(x + (size2/2)*(i+2), y, SingleNumber - 10 + 'A', size2, Color_Turn);
+		}
+	}
+}
 
+/**
+  * @brief  OLED显示数字（二进制，正数）
+ * @param {uint8_t} x待显示的数字起始横坐标,x:0~126
+ * @param {uint8_t} y待显示的数字起始纵坐标, y:0~7，若选择字体大小为16，则两行数字之间需要间隔2，若选择字体大小为12，间隔1
+ * @param {Number} 要显示的数字，范围：0~0xFFFFFFFF
+ * @param {uint8_t } Length:要显示数字的长度
+ * @param {uint8_t} size2:输入的数据大小，选择 16/12，16为8X16，12为6x8
+ * @param {uint8_t} Color_Turn是否反相显示(1反相、0不反相)
+ * @return {*}
+ */
+void OLED_ShowBinNum(uint8_t x, uint8_t y, uint32_t Number, uint8_t Length, uint8_t size2, uint8_t Color_Turn)
+{
+	uint8_t i;
+    OLED_ShowString(x, y, "0b", size2, Color_Turn);
+	for (i = 0; i < Length; i++)							
+	{
+		OLED_ShowChar(x + (size2/2)*(i+2), y, Number / oled_pow(2, Length - i - 1) % 2 + '0', size2, Color_Turn);
+	}
+}
 
 /**
  * @function: void OLED_ShowCHinese(uint8_t x,uint8_t y,uint8_t no, uint8_t Color_Turn)
