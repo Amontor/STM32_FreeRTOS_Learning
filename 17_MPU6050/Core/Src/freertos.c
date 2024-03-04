@@ -27,7 +27,8 @@
 /* USER CODE BEGIN Includes */
 #include "stdio.h"
 #include "usart.h"
-#include "oled.h"
+#include "my_mpu6050.h"
+#include "i2c.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -116,14 +117,22 @@ void MX_FREERTOS_Init(void) {
 void MPU6050_Entry(void *argument)
 {
   /* USER CODE BEGIN MPU6050_Entry */
-  OLED_Init();
-  OLED_Display_On();
-  OLED_Clear();
+  int ret = 0;
+  float pitch, roll, yaw;
+  do
+  {
+    ret = MPU6050_DMP_init();
+    printf("MPU6050 init, ret = %d\r\n", ret);
+    osDelay(1000);
+  } while(ret);
   /* Infinite loop */
   for(;;)
   {
-    
-    osDelay(1);
+    if(MPU6050_DMP_Get_Date(&pitch, &roll, &yaw) == 0);
+    {
+        printf("pitch = %f, roll = %f, yaw = %f\r\n", pitch, roll, yaw);
+    }
+    osDelay(100);
   }
   /* USER CODE END MPU6050_Entry */
 }

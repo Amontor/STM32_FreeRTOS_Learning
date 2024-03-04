@@ -42,6 +42,7 @@ struct int_param_s {
     void (*cb)(volatile void*);
     void *arg;
 #endif
+    void *arg;
 };
 
 #define MPU_INT_STATUS_DATA_READY       (0x0001)

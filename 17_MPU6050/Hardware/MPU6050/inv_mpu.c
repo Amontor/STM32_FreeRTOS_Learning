@@ -40,9 +40,9 @@
 #include "i2c.h"
 #include "cmsis_os.h"
 #define i2c_write(dev_addr, reg_addr, date_size, p_data) \
-        HAL_I2C_Mem_Write_DMA(&hi2c1, dev_addr, reg_addr, I2C_MEMADD_SIZE_8BIT, p_data, date_size)
+        HAL_I2C_Mem_Write(&hi2c1, dev_addr, reg_addr, I2C_MEMADD_SIZE_8BIT, p_data, date_size, 0xF)
 #define i2c_read(dev_addr, reg_addr, date_size, p_date)  \
-        HAL_I2C_Mem_Read_DMA(&hi2c1, dev_addr, reg_addr, I2C_MEMADD_SIZE_8BIT, p_date, date_size)
+        HAL_I2C_Mem_Read(&hi2c1, dev_addr, reg_addr, I2C_MEMADD_SIZE_8BIT, p_date, date_size, 0xF)
 #define delay_ms    osDelay
 #define get_ms(p)   do{ *p = HAL_GetTick();}while(0)
 // static inline int reg_int_cb(struct int_param_s *int_param)
@@ -483,7 +483,7 @@ const struct gyro_reg_s reg = {
 #endif
 };
 const struct hw_s hw = {
-    .addr           = 0x68,
+    .addr           = 0xd0,
     .max_fifo       = 1024,
     .num_reg        = 118,
     .temp_sens      = 340,
@@ -787,8 +787,8 @@ int mpu_init(struct int_param_s *int_param)
     if (mpu_configure_fifo(0))
         return -1;
 
-    if (int_param)
-        reg_int_cb(int_param);
+    // if (int_param)
+    //     reg_int_cb(int_param);
 
 #ifdef AK89xx_SECONDARY
     setup_compass();
